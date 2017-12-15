@@ -16,21 +16,21 @@ public:
     double S,X,T,sigma,r;           //S is current stock price, X is option exercise price
     unsigned long n;                          //T is option life expiration time in year, sigma is volatility
     char trade_type;                  //r is risk free interest rate, n is step in binomial tree
-
+    double calculate();
 
 protected:
     double p,u,d,delta_t;
     vector<double> stock_value, option_value;
     vector<double> forward();
 //    virtual vector<double> backward();
-//    vector<double> backward();
-//    vector<double> backward_put();
-//    double calculate();
+    vector<double> backward();
+    vector<double> backward_put();
+
     double max_E(double v1, double v2), max_A(double v1, double v2, double v3);
 
 };
 
-class European : Binomial{
+class European : public Binomial{
 public:
 //    European();
 
@@ -39,12 +39,12 @@ public:
 //    double calculate();
 
 
-private:
-    vector<double> backward();
-    vector<double> backward_put();
+//private:
+//    vector<double> backward();
+//    vector<double> backward_put();
 };
 
-class American : Binomial{
+class American : public Binomial{
 public:
 
     American(double SS, double XX,double TT,
@@ -133,7 +133,7 @@ vector<double> Binomial::forward(){        //compute the stock value for each st
 }
 
 
-vector<double> European::backward(){
+vector<double> Binomial::backward(){
     unsigned long total = (n+1)*(n+2)/2;      //total number of stock value and option value
     vector<double> option_value(total);
     long step = n;
@@ -157,7 +157,7 @@ vector<double> European::backward(){
     return option_value;
 }
 
-vector<double> European::backward_put(){
+vector<double> Binomial::backward_put(){
     unsigned long total = (n+1)*(n+2)/2;      //total number of stock value and option value
     vector<double> option_value(total);
     long step = n;
@@ -181,14 +181,14 @@ vector<double> European::backward_put(){
     return option_value;
 }
 
-//double Binomial::calculate(){
-//    stock_value = forward();
-//    if (trade_type == 'C')
-//        option_value = backward();
-//    else
-//        option_value = backward_put();
-//    return option_value[0];
-//}
+double Binomial::calculate(){
+    stock_value = forward();
+    if (trade_type == 'C')
+        option_value = backward();
+    else
+        option_value = backward_put();
+    return option_value[0];
+}
 
 double American::calculate(){
     stock_value = forward();
@@ -250,12 +250,11 @@ vector<double> American::backward_put(){
 
 
 int main(){
-//    European et(70, 80, 0.25, 0.2, 0.12, 3,'P');
+    European et(70, 80, 0.25, 0.2, 0.12, 3,'P');
     American at(70, 80, 0.25, 0.2, 0.12, 3,'P');
-    double price = at.calculate();
+    double price = et.calculate();
+    double pricea = at.calculate();
     cout << price << endl;
+    cout << pricea << endl;
     return 0;
 }
-
-
-
